@@ -2,27 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type UserDto {
+type User {
   id: ID!
   email: String!
+  role: String!
+}
+
+type TokensDto {
+  access_token: String!
+  refresh_token: String!
 }
 
 type CreatedUserResponseDto {
   access_token: String!
-  user_data: UserDto!
-}
-
-type AuthResponseDto {
-  access_token: String!
-  user_data: UserDto!
+  refresh_token: String!
 }
 
 type Query {
   hello: String!
+  getMe: User!
 }
 
 type Mutation {
-  login(authInput: AuthInputDto!): AuthResponseDto!
+  login(authInput: AuthInputDto!): TokensDto!
+  logout: Boolean!
+  refreshTokens: TokensDto!
   createUser(createUserInput: CreateUserDto!): CreatedUserResponseDto!
 }
 

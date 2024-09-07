@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Role } from '../../../common/enums';
 
 @ObjectType()
 @Entity('users')
@@ -14,4 +15,11 @@ export class User {
 
   @Column()
   password: string;
+
+  @Field()
+  @Column({ default: Role.USER })
+  role: Role;
+
+  @Column({ nullable: true })
+  refresh_token: string;
 }

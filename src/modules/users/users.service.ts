@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
+import { IsNull, Not, Repository, UpdateResult } from 'typeorm';
 import { User } from './entities';
 import { CreateUserDto } from './dto';
 import { PasswordService } from './password.service';
-import { JwtPayload, UserAuthData } from '@src/types';
+import { JwtPayload, Tokens } from '@src/types';
+import { JwtService } from '../jwt/jwt.service';
 
 @Injectable()
 export class UsersService {
@@ -16,9 +16,7 @@ export class UsersService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createUser(
-    createUserDto: CreateUserDto,
-  ): Promise<UserAuthData | undefined> {
+  async createUser(createUserDto: CreateUserDto): Promise<Tokens | undefined> {
     const { email, password } = createUserDto;
     const existingUser = await this.userRepository.findOne({
       where: {
@@ -37,12 +35,16 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    const payload: JwtPayload = { email: user.email, sub: user.id };
-
-    return {
-      access_token: this.jwtService.sign(payload),
-      user_data: user,
+    const payload: JwtPayload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
     };
+
+    const tokens = await this.jwtService.getTokens(payload);
+    await this.updateRefreshToken(user.id, tokens.refresh_token);
+
+    return tokens;
   }
 
   async findOne(email: string): Promise<User | undefined> {
@@ -51,5 +53,31 @@ export class UsersService {
         email,
       },
     });
+  }
+
+  async deleteRefreshToken(userId: string): Promise<boolean> {
+    const result: UpdateResult = await this.userRepository.update(
+      {
+        id: userId,
+        refresh_token: Not(IsNull()),
+      },
+      { refresh_token: null },
+    );
+
+    return result.affected > 0;
+  }
+
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
+    await this.userRepository.update(
+      {
+        id: userId,
+      },
+      {
+        refresh_token: refreshToken,
+      },
+    );
   }
 }

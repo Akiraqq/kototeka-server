@@ -1,21 +1,39 @@
-import { IUser } from 'src/types/types';
-import { AuthService } from './auth.service';
-import { GqlLocalAuthGuard } from './guards/gql-local-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { AuthInputDto, AuthResponseDto } from './dto';
-import { CurrentUser } from 'src/common/decorators';
+import { AuthService } from './auth.service';
+import {
+  GqlLocalAuthGuard,
+  GqlJwtGuard,
+  GqlRefreshGuard,
+} from '@src/common/guards';
+import { AuthInputDto, TokensDto } from './dto';
+import { GetCurrentUser } from 'src/common/decorators';
+import { JwtPayloadWithRt, User } from '@src/types';
 
 @Resolver()
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
-  @Mutation(() => AuthResponseDto)
+  @Mutation(() => TokensDto)
   @UseGuards(GqlLocalAuthGuard)
   async login(
     @Args('authInput') authInputDto: AuthInputDto,
-    @CurrentUser() user: IUser,
-  ): Promise<AuthResponseDto> {
+    @GetCurrentUser() user: User,
+  ): Promise<TokensDto> {
     return this.authService.login(user);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(GqlJwtGuard)
+  async logout(@GetCurrentUser('sub') userId: string): Promise<boolean> {
+    return this.authService.logout(userId);
+  }
+
+  @Mutation(() => TokensDto)
+  @UseGuards(GqlRefreshGuard)
+  async refreshTokens(
+    @GetCurrentUser() payload: JwtPayloadWithRt,
+  ): Promise<TokensDto> {
+    return this.authService.refreshTokens(payload.email, payload.refreshToken);
   }
 }
