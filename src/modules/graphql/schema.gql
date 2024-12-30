@@ -2,10 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Organization {
+  id: ID!
+  name: String!
+  volunteers: [User!]!
+}
+
 type User {
   id: ID!
+  first_name: String!
+  last_name: String!
   email: String!
   role: String!
+  organization: Organization
 }
 
 type TokensDto {
@@ -28,6 +37,7 @@ type Mutation {
   logout: Boolean!
   refreshTokens: TokensDto!
   createUser(createUserInput: CreateUserDto!): CreatedUserResponseDto!
+  deleteUser(email: String!): Boolean!
 }
 
 input AuthInputDto {
@@ -36,6 +46,8 @@ input AuthInputDto {
 }
 
 input CreateUserDto {
+  first_name: String!
+  last_name: String!
   email: String!
   password: String!
 }
