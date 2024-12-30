@@ -16,8 +16,8 @@ export class UsersService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<Tokens | undefined> {
-    const { email, password } = createUserDto;
+  async createUser(dto: CreateUserDto): Promise<Tokens | undefined> {
+    const { email, password, ...restData } = dto;
     const existingUser = await this.userRepository.findOne({
       where: {
         email,
@@ -33,6 +33,7 @@ export class UsersService {
     const user = await this.userRepository.save({
       email,
       password: hashedPassword,
+      ...restData,
     });
 
     const payload: JwtPayload = {
@@ -53,6 +54,12 @@ export class UsersService {
         email,
       },
     });
+  }
+
+  async deleteUser(email: string): Promise<boolean> {
+    const result = await this.userRepository.softDelete({ email });
+
+    return result.affected > 0;
   }
 
   async deleteRefreshToken(userId: string): Promise<boolean> {
