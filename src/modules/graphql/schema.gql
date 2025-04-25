@@ -5,8 +5,17 @@
 type Organization {
   id: ID!
   name: String!
-  volunteers: [User!]!
+  descriptions: String
+  location: String
+  contactEmail: String!
+  createdAt: DateTime!
+  volunteers: [User!]
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type User {
   id: ID!
@@ -30,6 +39,8 @@ type CreatedUserResponseDto {
 type Query {
   hello: String!
   getMe: User!
+  findAllOrganizations: [Organization!]!
+  findOrganization(id: String!): Organization!
 }
 
 type Mutation {
@@ -38,6 +49,8 @@ type Mutation {
   refreshTokens: TokensDto!
   createUser(createUserInput: CreateUserDto!): CreatedUserResponseDto!
   deleteUser(email: String!): Boolean!
+  createOrganization(createOrganizationInput: CreateOrganizationInput!): Organization!
+  updateOrganization(updateOrganizationInput: UpdateOrganizationInput!): Organization!
 }
 
 input AuthInputDto {
@@ -50,4 +63,19 @@ input CreateUserDto {
   last_name: String!
   email: String!
   password: String!
+}
+
+input CreateOrganizationInput {
+  name: String!
+  description: String
+  location: String
+  contactEmail: String!
+}
+
+input UpdateOrganizationInput {
+  name: String
+  description: String
+  location: String
+  contactEmail: String
+  id: ID!
 }
