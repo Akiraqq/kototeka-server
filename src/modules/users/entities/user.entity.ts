@@ -4,12 +4,14 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Role } from '../../../common/enums';
+import { Role } from '@src/common/enums';
 import { Organization } from '@src/modules/organizations/entities';
+import { Animal } from '@src/modules/animals/entities';
 
 @ObjectType()
 @Entity('users')
@@ -33,8 +35,12 @@ export class User {
   @Column()
   password: string;
 
-  @Field()
-  @Column({ default: Role.USER })
+  @Field(() => Role)
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
   role: Role;
 
   @Column({ nullable: true })
@@ -45,6 +51,10 @@ export class User {
     nullable: true,
   })
   organization: Organization;
+
+  @Field(() => [Animal], { nullable: true })
+  @OneToMany(() => Animal, (animal) => animal.createdBy)
+  createdAnimals?: Animal[];
 
   @CreateDateColumn()
   createdAt: Date;

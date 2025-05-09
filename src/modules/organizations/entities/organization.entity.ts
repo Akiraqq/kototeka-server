@@ -1,11 +1,14 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Animal } from '@src/modules/animals/entities';
 import { User } from '@src/modules/users/entities';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @ObjectType()
@@ -35,7 +38,17 @@ export class Organization {
   @CreateDateColumn()
   createdAt: Date;
 
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
+
   @Field(() => [User], { nullable: true })
   @OneToMany(() => User, (user) => user.organization)
   volunteers?: User[];
+
+  @Field(() => [Animal], { nullable: true })
+  @OneToMany(() => Animal, (animal) => animal.organization)
+  pets?: Animal[];
 }

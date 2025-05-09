@@ -5,6 +5,7 @@ export type User = {
   email: string;
   refresh_token: string;
   role: Role;
+  organizationId?: string;
 };
 
 export type UserWithoutRt = Omit<User, 'refresh_token'>;
