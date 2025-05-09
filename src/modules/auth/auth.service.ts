@@ -22,13 +22,14 @@ export class AuthService {
       );
 
       if (isPasswordMatch) {
-        const { id, email, refresh_token, role } = user;
+        const { id, email, refresh_token, role, organization } = user;
 
         return {
           userId: id,
           email,
           refresh_token,
           role,
+          organizationId: organization?.id,
         };
       }
     }
@@ -37,8 +38,8 @@ export class AuthService {
   }
 
   async login(user: User): Promise<Tokens> {
-    const { email, userId, role } = user;
-    const payload: JwtPayload = { email, sub: userId, role };
+    const { email, userId, role, organizationId } = user;
+    const payload: JwtPayload = { email, sub: userId, role, organizationId };
 
     const tokens = await this.jwtService.getTokens(payload);
     await this.usersService.updateRefreshToken(
@@ -68,6 +69,7 @@ export class AuthService {
       email: user.email,
       sub: user.id,
       role: user.role,
+      organizationId: user.organization?.id,
     };
     const tokens = await this.jwtService.getTokens(payload);
     await this.usersService.updateRefreshToken(user.id, tokens.refresh_token);

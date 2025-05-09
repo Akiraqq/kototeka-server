@@ -9,6 +9,7 @@ import {
   UsersModule,
   JwtModule,
   OrganizationsModule,
+  AnimalsModule,
 } from './modules';
 
 @Module({
@@ -20,6 +21,7 @@ import {
     UsersModule,
     JwtModule,
     OrganizationsModule,
+    AnimalsModule,
   ],
   providers: [AppService, AppResolver],
 })
